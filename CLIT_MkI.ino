@@ -6,8 +6,14 @@
 // Radio functions
 #include <radio.h>
 #include <TEA5767.h>
+// Clock function
+#include <DS3231.h>
 
-// Data to do with the scree
+DS3231 clock;
+RTCDateTime dt;
+String txt;
+
+// Data to do with the screen
   #define SCREEN_WIDTH 128 // OLED display width,  in pixels
   #define SCREEN_HEIGHT 64 // OLED display height, in pixels
   Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
@@ -18,11 +24,11 @@
   TEA5767 radio;
 
 // The buttons, placement on the list, turning the radio on and if an option has been chosen
-int Up_Button = 4;
-int Down_Button = 5;
-int Enter_Button = 51;
+int Up_Button = 5;
+int Down_Button = 4;
+int Enter_Button = 8;
 int Placement = 0;
-int Radio_Power = 10;
+int Radio_Power = 18;
 bool Chosen = false;
 int Held_Up = 0;
 int Held_Down = 0;
@@ -124,11 +130,11 @@ void Option2() {
     {if (FIX_STATION >= 10800) {FIX_STATION = 10800;}
     else {
     if (Held_Up == 10)
-    {FIX_STATION += 300;} 
+      {FIX_STATION += 300;} 
     else if (Held_Up >= 7)
-    {FIX_STATION += 100; Held_Up++;}
+      {FIX_STATION += 100; Held_Up++;}
     else 
-    {FIX_STATION += 10; Held_Up++;}}}
+      {FIX_STATION += 10; Held_Up++;}}}
   else if (digitalRead(Down_Button) == LOW) {
     if (FIX_STATION <= 7600) {FIX_STATION = 7600;}
     else {if (Held_Down == 10) {FIX_STATION -=300;}
@@ -136,18 +142,32 @@ void Option2() {
     else {FIX_STATION -= 10; Held_Down++;}}}
   else{Held_Up = 0; Held_Down = 0;}
   oled.print(FIX_STATION/100);
-  oled.print(" FM");
+  oled.println(" FM");
   oled.display();
-  delay(100);
 }
 
+// Option 3, which is a live clock
 void Option3() {
-
+  oled.setCursor(0, 10);
+  oled.clearDisplay();
+  dt = clock.getDateTime();
+  oled.print(dt.year);   oled.print("-");
+  oled.print(dt.month);  oled.print("-");
+  oled.print(dt.day);    oled.println(" ");
+  oled.print(dt.hour);   oled.print(":");
+  oled.print(dt.minute); oled.print(":");
+  oled.print(dt.second); oled.println("");
+  oled.display();
+  delay(1000);
 }
 
 void setup() {
 // Establish communication
 Serial.begin(9600);
+
+clock.begin();
+  // Set sketch compiling time
+//    clock.setDateTime(__DATE__, __TIME__);
 
 //Define some data
 pinMode(Up_Button, INPUT_PULLUP);
@@ -176,7 +196,7 @@ oled.display();
 delay(900);
 }
 void loop() {
-  while (Chosen == false){
+  if (Chosen == false){
     // Setting up the display
     oled.clearDisplay();
     oled.setTextSize(2);
@@ -186,21 +206,24 @@ void loop() {
     // Options
     if (Placement == 0) {oled.println("Friend");}
       else if (Placement == 1) {oled.println("Radio");}
-      else if (Placement == 2) {oled.println("Option 3");}
+      else if (Placement == 2) {oled.println("Clock");}
       else {oled.println("Error 01");}
     oled.display();
     delay(200);
     if (digitalRead(Enter_Button) == LOW)
       {Chosen = true;}
     if (digitalRead(Up_Button) == LOW)
-      {if (Placement == 0){continue;}
-      Placement--; continue;}
+      {if (Placement == 0){}
+      else {Placement--;}}
       else if (digitalRead(Down_Button) == LOW)
-      {if (Placement == 2){continue;}
-      Placement++; continue;}
+      {if (Placement == 2){}
+      else {Placement++;}}
   }
-  if (Placement == 0){Option1();}
-  else if (Placement == 1){Option2();}
-  else if (Placement == 2){oled.println("eh");}
-  else {oled.println("Error 02");}
+  else if (Chosen == true){
+    if (Placement == 0){Option1();}
+    else if (Placement == 1){Option2();}
+    else if (Placement == 2){Option3();}
+    else {oled.println("Error 02");}
+    oled.display();
+  }
 }

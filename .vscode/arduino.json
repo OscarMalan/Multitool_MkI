@@ -1,7 +1,7 @@
 {
+    "sketch": "CLIT_MkI.ino",
     "configuration": "cpu=atmega2560",
     "board": "arduino:avr:mega",
-    "port": "COM4",
     "programmer": "arduino:avrispmkii",
-    "sketch": "Multitool_MK_I.ino"
+    "port": "COM4"
 }
