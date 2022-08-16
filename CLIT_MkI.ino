@@ -166,7 +166,8 @@ void setup() {
 Serial.begin(9600);
 
 clock.begin();
-  // Set sketch compiling time
+  // Set sketch compiling time, always comment after first time setting
+  //the time, then commit a new copy of the code with this commented out
 //    clock.setDateTime(__DATE__, __TIME__);
 
 //Define some data
