@@ -164,41 +164,42 @@ void Option3() {
 }
 
 void setup() {
-// Establish communication
-Serial.begin(9600);
+  // Establish communication
+  Serial.begin(9600);
 
-clock.begin();
-  // Set sketch compiling time, always comment after first time setting
-  //the time, then commit a new copy of the code with this commented out
-//    clock.setDateTime(__DATE__, __TIME__);
+  clock.begin();
+    // Set sketch compiling time, always comment after first time setting
+    //the time, then commit a new copy of the code with this commented out
+  //    clock.setDateTime(__DATE__, __TIME__);
 
-//Define some data
-pinMode(Up_Button, INPUT_PULLUP);
-pinMode(Down_Button, INPUT_PULLUP);
-pinMode(Enter_Button, INPUT_PULLUP);
-pinMode(Radio_Power, OUTPUT);
+  //Define some data
+  pinMode(Up_Button, INPUT_PULLUP);
+  pinMode(Down_Button, INPUT_PULLUP);
+  pinMode(Enter_Button, INPUT_PULLUP);
+  pinMode(Radio_Power, OUTPUT);
 
-// initialize OLED display with address 0x3C for 128x64
-if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-  Serial.println(F("SSD1306 allocation failed"));
-  while (true);
+  // initialize OLED display with address 0x3C for 128x64
+  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
+    Serial.println(F("SSD1306 allocation failed"));
+    while (true);
+  }
+
+  // Help in the serial
+  Serial.println("Error Codes:");
+  Serial.println("01: Went to an invalid option on options screen.");
+  Serial.println("02: Entered an invalid option, so don't know what to display.");
+  Serial.println("03: Couldn't find what day it is.");
+
+  // Starts the oled with a beginning text
+  oled.clearDisplay();  
+  oled.setTextSize(2);
+  oled.setTextColor(WHITE);
+  oled.setCursor(0, 10);
+  oled.println("Begin");
+  oled.display();
+  delay(900);
 }
 
-// Help in the serial
-Serial.println("Error Codes:");
-Serial.println("01: Went to an invalid option on options screen.");
-Serial.println("02: Entered an invalid option, so don't know what to display.");
-Serial.println("03: Couldn't find what day it is.");
-
-// Starts the oled with a beginning text
-oled.clearDisplay();  
-oled.setTextSize(2);
-oled.setTextColor(WHITE);
-oled.setCursor(0, 10);
-oled.println("Begin");
-oled.display();
-delay(900);
-}
 void loop() {
   if (Chosen == false){
     // Setting up the display
