@@ -28,10 +28,11 @@ int Up_Button = 5;
 int Down_Button = 4;
 int Enter_Button = 8;
 int Placement = 0;
-int Radio_Power = 18;
+int Radio_Power = 13;
 bool Chosen = false;
 int Held_Up = 0;
 int Held_Down = 0;
+char *Day[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Error 03"};
 
 // The Zorua Bitmap
 const unsigned char Zorua [] PROGMEM = {
@@ -151,9 +152,10 @@ void Option3() {
   oled.setCursor(0, 10);
   oled.clearDisplay();
   dt = clock.getDateTime();
-  oled.print(dt.year);   oled.print("-");
+  oled.println(Day[dt.dayOfWeek - 1]);
+  oled.print(dt.day);   oled.print("-");
   oled.print(dt.month);  oled.print("-");
-  oled.print(dt.day);    oled.println(" ");
+  oled.print(dt.year);    oled.println(" ");
   oled.print(dt.hour);   oled.print(":");
   oled.print(dt.minute); oled.print(":");
   oled.print(dt.second); oled.println("");
@@ -184,8 +186,9 @@ if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
 
 // Help in the serial
 Serial.println("Error Codes:");
-Serial.println("01: Went to an invalid option on options screen");
-Serial.println("02: Entered an invalid option, so don't know what to display");
+Serial.println("01: Went to an invalid option on options screen.");
+Serial.println("02: Entered an invalid option, so don't know what to display.");
+Serial.println("03: Couldn't find what day it is.");
 
 // Starts the oled with a beginning text
 oled.clearDisplay();  
