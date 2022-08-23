@@ -1,5 +1,6 @@
 // Needed for SDA and SCL connections
 #include <Wire.h>
+#include <SPI.h>
 // Oled panel functions
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -24,15 +25,39 @@ String txt;
   TEA5767 radio;
 
 // The buttons, placement on the list, turning the radio on and if an option has been chosen
+int Comp_Y = 0;
+int Player_Y = 0;
+int Ball_X = 64;
+int Ball_Y = 32;
 int Up_Button = 5;
 int Down_Button = 4;
 int Enter_Button = 8;
 int Placement = 0;
 int Radio_Power = 13;
+int Score = 0;
 bool Chosen = false;
+bool Ball_Going_To_Player = true;
+bool Ball_Going_Up = true;
+bool Paddle_Contact = false;
 int Held_Up = 0;
 int Held_Down = 0;
 char *Day[] = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday", "Error 03"};
+
+void Ball_Move() {
+  // Lose Condition
+  if (Ball_X == 127) {oled.clearDisplay(); oled.setCursor(0, 10); oled.println("You Scored"); oled.println(Score); oled.display(); exit(0);}
+  // Ball's X Axis rules
+  else if (Ball_X == 10 && Ball_Y > 17+Comp_Y && Ball_Y < 47+Comp_Y){Ball_X++; Ball_Going_To_Player = true; Paddle_Contact = true;}
+  else if (Ball_X == 117 && Ball_Y > 17+Player_Y && Ball_Y < 47+Player_Y){Score++; Ball_X--; Ball_Going_To_Player = false; Paddle_Contact = true;}
+  else if (Ball_Going_To_Player == true){Ball_X++; Paddle_Contact = false;}
+  else if (Ball_Going_To_Player == false){Ball_X--; Paddle_Contact = false;}
+  // Ball's Y Axis rules
+  if (Paddle_Contact == true){
+    {if (random(0,100) >= 50){Ball_Going_Up = false; Ball_Y++;}else{Ball_Going_Up = true; Ball_Y--;}}
+  }
+  else if (Ball_Going_Up == true){if (Ball_Y == 1){Ball_Going_Up = false; Ball_Y++;} else{Ball_Y--;}}
+  else if (Ball_Going_Up == false){if (Ball_Y == 63){Ball_Going_Up = true; Ball_Y--;} else{Ball_Y++;}}
+}
 
 // The Zorua Bitmap
 const unsigned char Zorua [] PROGMEM = {
@@ -163,6 +188,30 @@ void Option3() {
   delay(1000);
 }
 
+void Option4() {
+    oled.clearDisplay();
+  // Drawing the border
+  oled.drawRect(1,1,127,63,WHITE);
+  if (digitalRead(Up_Button) == LOW){
+    if (Player_Y == -15){}
+    else {Player_Y--;Serial.println(Player_Y);}}
+  else if (digitalRead(Down_Button) == LOW){
+    if (Player_Y == 14){}
+    else {Player_Y++; Serial.println(Player_Y);}}
+  // The computer choosing where to move
+  if (Ball_Y <= 17 || Ball_Y >= 47){} else {Comp_Y = Ball_Y -31;}
+  Serial.println(Ball_Y);
+  // Computer Paddle
+  oled.drawLine(10,17+Comp_Y,10,47+Comp_Y,WHITE);
+  // Player Paddle
+  oled.drawLine(117,17+Player_Y,117,47+Player_Y,WHITE);
+  // The rules of the Ball moving
+  Ball_Move();
+  // The Ball
+  oled.drawPixel(Ball_X, Ball_Y, WHITE);
+  oled.display();
+}
+
 void setup() {
   // Establish communication
   Serial.begin(9600);
@@ -170,7 +219,7 @@ void setup() {
   clock.begin();
     // Set sketch compiling time, always comment after first time setting
     //the time, then commit a new copy of the code with this commented out
-  //    clock.setDateTime(__DATE__, __TIME__);
+//      clock.setDateTime(__DATE__, __TIME__);
 
   //Define some data
   pinMode(Up_Button, INPUT_PULLUP);
@@ -212,6 +261,7 @@ void loop() {
     if (Placement == 0) {oled.println("Friend");}
       else if (Placement == 1) {oled.println("Radio");}
       else if (Placement == 2) {oled.println("Clock");}
+      else if (Placement == 3) {oled.println("Pong");}
       else {oled.println("Error 01");}
     oled.display();
     delay(200);
@@ -221,13 +271,14 @@ void loop() {
       {if (Placement == 0){}
       else {Placement--;}}
       else if (digitalRead(Down_Button) == LOW)
-      {if (Placement == 2){}
+      {if (Placement == 3){}
       else {Placement++;}}
   }
   else if (Chosen == true){
     if (Placement == 0){Option1();}
     else if (Placement == 1){Option2();}
     else if (Placement == 2){Option3();}
+    else if (Placement == 3){Option4();}
     else {oled.println("Error 02");}
     oled.display();
   }
