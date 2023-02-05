@@ -1,4 +1,4 @@
-# CLIT (Cool Little Interesting Thing) MkI
+# Multitool MkI
  An Arduino program that does multiple jobs (Display an image, turn on a radio, and tell the time).
  
  Whilst this was and has been made for an Arduino Mega 2560, it is under 31KB so you can modify the code to be compatible with an UNO.
